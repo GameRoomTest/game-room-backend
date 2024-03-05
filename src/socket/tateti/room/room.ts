@@ -1,5 +1,5 @@
 import { generateRandomCode } from "../../../utils/generate-random-code";
-import { Code, Player, RoomByCode, Room as IRoom } from "../types";
+import { Code, Player, RoomByCode, Room as IRoom, Mark, winnerPattern } from "../types";
 
 export default class Room {
   private static rooms: RoomByCode = {};
@@ -9,19 +9,31 @@ export default class Room {
 
     this.rooms[code] = {
       code,
-      players: [{...player, socketId}]
+      players: {
+        [player.id]: {
+          ...player,
+          socketId,
+          mark: Mark.X,
+          movement: [],
+        }
+      },
     }
 
     return code;
   }
 
-  public static joinRoom(code: string, player: Player, socketId: string): boolean {
+  public static joinRoom(code: string, player: Pick<Player, 'id' | 'name'>, socketId: string): boolean {
     const room = this.rooms[code];
 
-    if(room && room.players.length === 1) {
-      this.rooms[code].players.push({...player, socketId});
+    if(room && Object.keys(room.players).length === 1) {
+      this.rooms[code].players[player.id] = {
+        ...player,
+        socketId,
+        mark: Mark.O,
+        movement: [],
+      };
     } else {
-      console.log(`La sala ${code} está llena o no existe`)
+      console.log(`La sala code:${code} está llena o no existe`)
     }
 
     return false;
@@ -37,6 +49,41 @@ export default class Room {
 
   public static getRoomByPlayerSocketId(socketId: string): IRoom | undefined {
     return Object.values(this.rooms)
-      .find(r => r.players.some(p => p.socketId === socketId))
+      .find(r => Object.values(r.players).some(p => p.socketId === socketId))
+  }
+
+  private static getCodeRoomByPlayerId(playerId: Player['id']): Code | undefined {
+    const room = Object.values(this.rooms).find(room => !!room.players[playerId])
+
+    if(!room) return;
+
+    return room.code;
+  }
+
+  public static move(position: number, playerId: Player['id']): void {
+    const code = this.getCodeRoomByPlayerId(playerId);
+
+    if(!code) return;
+
+    // room -> player -> movement (agregamos nuevo movimiento)
+    this.rooms[code].players[playerId].movement.push(position);
+  }
+
+  public static checkWinner(playerId: Player['id']): boolean {
+    const code = this.getCodeRoomByPlayerId(playerId);
+
+    if(!code) return false;
+
+    const movement = this.rooms[code].players[playerId].movement;
+
+
+    winnerPattern.forEach((winningSequence) => {
+      
+      const isWinner = winningSequence.every(index => movement.includes(index));
+      
+      if(isWinner) return true;
+    })
+
+    return false;
   }
 }

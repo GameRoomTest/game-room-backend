@@ -8,7 +8,7 @@ export const disconnect = (userDisconnectedSocketId: string, io: Server) => {
 
   const roomCode = room.code;
 
-  const playerTwo = room.players.filter(x => x.socketId !== userDisconnectedSocketId)[0];
+  const playerTwo = Object.values(room.players).filter(x => x.socketId !== userDisconnectedSocketId)[0];
   
   // Eliminamos la sala del usuario que se desconecto
   Room.deleteRoom(roomCode);
