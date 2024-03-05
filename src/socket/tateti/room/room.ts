@@ -32,6 +32,8 @@ export default class Room {
         mark: Mark.O,
         movement: [],
       };
+
+      return true;
     } else {
       console.log(`La sala code:${code} está llena o no existe`)
     }
