@@ -19,14 +19,9 @@ export default class Room {
     const room = this.rooms[code];
 
     if(room && room.players.length === 1) {
-      const currentPlayer = this.rooms[code].players[0];
-
-      if(currentPlayer.id !== player.id) {
-        this.rooms[code].players.push({...player, socketId});
-
-        console.log(this.rooms)
-        return true
-      }
+      this.rooms[code].players.push({...player, socketId});
+    } else {
+      console.log(`La sala ${code} está llena o no existe`)
     }
 
     return false;
