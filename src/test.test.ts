@@ -1,16 +1,13 @@
 import { createServer } from "node:http";
 import { io as ioc, type Socket as ClientSocket } from "socket.io-client";
 import { PORT } from "./constants";
-import { Event } from "./socket/tateti/types";
-import { Player, Room } from ".";
+import { Event, Room } from "./socket/tateti/types";
 
 const httpServer = createServer();
-let clientSocket: ClientSocket;
-let clientSocket2: ClientSocket;
 
 httpServer.listen(() => {
-  clientSocket = ioc(`http://localhost:${PORT}`);
-  clientSocket2 = ioc(`http://localhost:${PORT}`);
+  const clientSocket = ioc(`http://localhost:${PORT}`);
+  
 
   clientSocket.on("connect", () => {
     console.log('I am the player ONE');
@@ -35,6 +32,8 @@ httpServer.listen(() => {
   })
 
   function joinPlayerTwo(code: string) {
+    const clientSocket2 = ioc(`http://localhost:${PORT}`);
+    
     const joinGameData = {
       id: 'zxc789',
       name: 'Karen',
