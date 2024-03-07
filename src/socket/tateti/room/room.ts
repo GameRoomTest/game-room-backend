@@ -54,7 +54,7 @@ export default class Room {
       .find(r => Object.values(r.players).some(p => p.socketId === socketId))
   }
 
-  private static getCodeRoomByPlayerId(playerId: Player['id']): Code | undefined {
+  public static getCodeRoomByPlayerId(playerId: Player['id']): Code | undefined {
     const room = Object.values(this.rooms).find(room => !!room.players[playerId])
 
     if(!room) return;
@@ -77,15 +77,14 @@ export default class Room {
     if(!code) return false;
 
     const movement = this.rooms[code].players[playerId].movement;
+    
+    for (let index = 0; index < winnerPattern.length; index++) {
+      const winningSequence = winnerPattern[index];
 
-
-    winnerPattern.forEach((winningSequence) => {
-      
       const isWinner = winningSequence.every(index => movement.includes(index));
       
       if(isWinner) return true;
-    })
-
+    }
     return false;
   }
 }

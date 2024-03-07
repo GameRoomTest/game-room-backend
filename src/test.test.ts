@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { io as ioc, type Socket as ClientSocket } from "socket.io-client";
+import { io as ioc} from "socket.io-client";
 import { PORT } from "./constants";
 import { Event, Room } from "./socket/tateti/types";
 
@@ -8,7 +8,6 @@ const httpServer = createServer();
 httpServer.listen(() => {
   const clientSocket = ioc(`http://localhost:${PORT}`);
   
-
   clientSocket.on("connect", () => {
     console.log('I am the player ONE');
   });
@@ -38,7 +37,7 @@ httpServer.listen(() => {
       id: 'zxc789',
       name: 'Karen',
     }
-
+    
     clientSocket2.on("connect", () => {
       console.log('I am the player TWO');
     });
@@ -52,12 +51,21 @@ httpServer.listen(() => {
     clientSocket2.on(Event.JOINED_IN_GAME, (room: Room) => {
       console.log(room)
 
-      clientSocket2.disconnect();
     })
     
     clientSocket2.on(Event.ERROR_JOINING, () => {
       console.log('Error al unirse al juego')
     })
-  }
+
+    clientSocket2.emit(Event.MOVE,{position: 0, playerId:joinGameData.id});
+    clientSocket2.emit(Event.MOVE,{position: 1, playerId:joinGameData.id});
+    clientSocket2.emit(Event.MOVE,{position: 2, playerId:joinGameData.id});
     
+    clientSocket2.on(Event.WINNER, (data) => {
+      console.log('player2', data)
+    })
+  }
+  clientSocket.on(Event.WINNER, (data)=> {
+    console.log('player1', data)
+  })
 });

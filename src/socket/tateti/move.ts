@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import Room from "./room/room";
-import { Player } from "./types";
+import { Event, Player } from "./types";
 
 export const move = (data: Data, io: Server) => {
   const {position, playerId} = data;
@@ -10,16 +10,24 @@ export const move = (data: Data, io: Server) => {
   const isWinner = Room.checkWinner(playerId);
 
   if(isWinner){
-    emitWinnerPlayer()
+    const code = Room.getCodeRoomByPlayerId(playerId);
+    const room = Room.getRoom(code as string); 
+    const socketIds = Object.values(room.players).map(p => p.socketId);
+
+    emitWinnerPlayer(io,socketIds, playerId)
   }
 }
-
-interface Data {
+export interface Data {
   position: number;
   playerId: Player['id'];
 }
 
-function emitWinnerPlayer() {
-  // emitir Event.WINNER a los dos players del room
-  console.log('alguien ganó')
+function emitWinnerPlayer(io: Server, socketIds: string[], playerWinnerId: string ) {
+  io.sockets.sockets.forEach(x => {
+    if(socketIds.includes(x.id)) {
+      x.emit(Event.WINNER, {playerId : playerWinnerId } )
+    }
+  })
+  
+  console.log('alguien ganó', playerWinnerId)
 }
