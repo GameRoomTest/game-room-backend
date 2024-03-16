@@ -7,6 +7,7 @@ export enum Event {
   JOINED_IN_GAME = 'joinedInGame',
   ERROR_JOINING = 'errorJoining',
   MOVE = 'move',
+  ON_MOVE = 'onMove',
   WINNER = 'winner',
 }
 

@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
 
   socket.on(Event.CREATE_GAME, (data) => createGame(data, socket));
 
-  socket.on(Event.JOIN_GAME, (data) => joinGame(data, socket));
+  socket.on(Event.JOIN_GAME, (data) => joinGame(data, socket, io));
 
   socket.on(Event.MOVE, (data) => move(data, io));
 });

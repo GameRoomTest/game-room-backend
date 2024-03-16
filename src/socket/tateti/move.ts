@@ -7,6 +7,8 @@ export const move = (data: Data, io: Server) => {
 
   Room.move(position, playerId);
 
+  SearchEmitMoveTheOtherPlayer(io, playerId, position)
+  
   const isWinner = Room.checkWinner(playerId);
 
   if(isWinner){
@@ -30,4 +32,16 @@ function emitWinnerPlayer(io: Server, socketIds: string[], playerWinnerId: strin
   })
   
   console.log('alguien ganó', playerWinnerId)
+}
+
+function SearchEmitMoveTheOtherPlayer(io:Server, playerId: string, position: number) {
+  const code = Room.getCodeRoomByPlayerId(playerId);
+  const room = Room.getRoom(code as string); 
+  const otherPlayer = Object.values(room.players).find(p=> p.id !== playerId)
+
+  io.sockets.sockets.forEach(x => {
+    if(otherPlayer?.socketId === x.id ) {
+      x.emit(Event.ON_MOVE, {position});
+    }
+  })
 }
